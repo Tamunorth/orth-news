@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -16,8 +14,9 @@ import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/presentation/widgets/article_list_tile.dart';
 import 'package:orth_news/features/news/presentation/widgets/bookmark_button.dart';
 import 'package:orth_news/features/search/presentation/bloc/search_bloc.dart';
-import 'package:orth_news/features/search/presentation/search_focus.dart';
 
+/// Full-screen search, pushed from the home search bar. Being a fresh route on
+/// each open, `autofocus` reliably focuses the field and opens the keyboard.
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -28,40 +27,20 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final _controller = TextEditingController();
   final _scroll = ScrollController();
-  final _focusNode = FocusNode();
-  Timer? _focusTimer;
 
   @override
   void initState() {
     super.initState();
     _scroll.addListener(_onScroll);
-    SearchFocus.instance.signal.addListener(_onFocusRequested);
-    // First visit from the home bar: the request fired before this listener
-    // existed, so honour the pending flag here.
-    if (SearchFocus.instance.pending) _onFocusRequested();
   }
 
   @override
   void dispose() {
-    _focusTimer?.cancel();
-    SearchFocus.instance.signal.removeListener(_onFocusRequested);
     _controller.dispose();
-    _focusNode.dispose();
     _scroll
       ..removeListener(_onScroll)
       ..dispose();
     super.dispose();
-  }
-
-  // Focus only after the tab transition settles, otherwise the field is still
-  // off-screen and the request is dropped.
-  void _onFocusRequested() {
-    if (!SearchFocus.instance.pending) return;
-    SearchFocus.instance.consume();
-    _focusTimer?.cancel();
-    _focusTimer = Timer(const Duration(milliseconds: 150), () {
-      if (mounted) _focusNode.requestFocus();
-    });
   }
 
   void _onScroll() {
@@ -79,37 +58,41 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return SafeArea(
-      bottom: false,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 4, 18, 12),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(l10n.navSearch, style: context.text.headlineMedium),
+    final colors = context.colors;
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 18, 12),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => context.pop(),
+                    icon: Icon(Icons.arrow_back_rounded, color: colors.title),
+                  ),
+                  Expanded(
+                    child: SearchField(
+                      controller: _controller,
+                      hint: context.l10n.searchHint,
+                      autofocus: true,
+                      onChanged: (value) => context.read<SearchBloc>().add(
+                        SearchQueryChanged(value),
+                      ),
+                      onClear: () {
+                        _controller.clear();
+                        context.read<SearchBloc>().add(const SearchCleared());
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18),
-            child: SearchField(
-              controller: _controller,
-              focusNode: _focusNode,
-              hint: l10n.searchHint,
-              onChanged: (value) =>
-                  context.read<SearchBloc>().add(SearchQueryChanged(value)),
-              onClear: () {
-                _controller.clear();
-                context.read<SearchBloc>().add(const SearchCleared());
-              },
+            Expanded(
+              child: BlocBuilder<SearchBloc, SearchState>(builder: _results),
             ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: BlocBuilder<SearchBloc, SearchState>(builder: _results),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

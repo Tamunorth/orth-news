@@ -10,11 +10,11 @@ import 'package:orth_news/core/widgets/app_error_view.dart';
 import 'package:orth_news/core/widgets/app_loading_view.dart';
 import 'package:orth_news/core/widgets/skeletons.dart';
 import 'package:orth_news/features/article_detail/article_route_args.dart';
-import 'package:orth_news/features/headlines/presentation/bloc/headlines_bloc.dart';
-import 'package:orth_news/features/headlines/presentation/widgets/category_chips.dart';
-import 'package:orth_news/features/headlines/presentation/widgets/home_header.dart';
-import 'package:orth_news/features/headlines/presentation/widgets/layout_toggle.dart';
-import 'package:orth_news/features/headlines/presentation/widgets/section_header.dart';
+import 'package:orth_news/features/home/presentation/bloc/home_bloc.dart';
+import 'package:orth_news/features/home/presentation/widgets/category_chips.dart';
+import 'package:orth_news/features/home/presentation/widgets/home_header.dart';
+import 'package:orth_news/features/home/presentation/widgets/layout_toggle.dart';
+import 'package:orth_news/features/home/presentation/widgets/section_header.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/domain/entities/news_category.dart';
 import 'package:orth_news/features/news/presentation/widgets/article_grid_card.dart';
@@ -23,19 +23,19 @@ import 'package:orth_news/features/news/presentation/widgets/bookmark_button.dar
 import 'package:orth_news/features/news/presentation/widgets/featured_article_card.dart';
 import 'package:orth_news/features/settings/presentation/bloc/settings_bloc.dart';
 
-class HeadlinesPage extends StatefulWidget {
-  const HeadlinesPage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<HeadlinesPage> createState() => _HeadlinesPageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _HeadlinesPageState extends State<HeadlinesPage> {
+class _HomePageState extends State<HomePage> {
   bool _onScrollNotification(ScrollNotification notification) {
     final metrics = notification.metrics;
     if (metrics.axis == Axis.vertical &&
         metrics.pixels >= metrics.maxScrollExtent - 400) {
-      context.read<HeadlinesBloc>().add(const HeadlinesNextPageRequested());
+      context.read<HomeBloc>().add(const HomeNextPageRequested());
     }
     return false;
   }
@@ -52,20 +52,20 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
       child: Column(
         children: [
           const HomeHeader(),
-          BlocSelector<HeadlinesBloc, HeadlinesState, NewsCategory>(
+          BlocSelector<HomeBloc, HomeState, NewsCategory>(
             selector: (state) => state.category,
             builder: (context, category) => Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: CategoryChips(
                 selected: category,
-                onSelected: (value) => context.read<HeadlinesBloc>().add(
-                  HeadlinesCategoryChanged(value),
+                onSelected: (value) => context.read<HomeBloc>().add(
+                  HomeCategoryChanged(value),
                 ),
               ),
             ),
           ),
           Expanded(
-            child: BlocBuilder<HeadlinesBloc, HeadlinesState>(
+            child: BlocBuilder<HomeBloc, HomeState>(
               builder: (context, state) {
                 final layout = context
                     .watch<SettingsBloc>()
@@ -74,8 +74,8 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
                 return RefreshIndicator(
                   color: context.colors.accent,
                   onRefresh: () {
-                    final bloc = context.read<HeadlinesBloc>()
-                      ..add(const HeadlinesRefreshed());
+                    final bloc = context.read<HomeBloc>()
+                      ..add(const HomeRefreshed());
                     return bloc.stream.firstWhere((s) => !s.isRefreshing);
                   },
                   child: NotificationListener<ScrollNotification>(
@@ -111,14 +111,13 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
     );
   }
 
-  Widget _body(BuildContext context, HeadlinesState state, FeedLayout layout) {
+  Widget _body(BuildContext context, HomeState state, FeedLayout layout) {
     if (state.articles.isEmpty) {
       return switch (state.status) {
         FetchStatus.failure => _fill(
           AppErrorView(
             message: state.errorMessage ?? '',
-            onRetry: () =>
-                context.read<HeadlinesBloc>().add(const HeadlinesStarted()),
+            onRetry: () => context.read<HomeBloc>().add(const HomeStarted()),
           ),
         ),
         FetchStatus.success => _fill(
@@ -139,7 +138,7 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
     slivers: [SliverFillRemaining(hasScrollBody: false, child: child)],
   );
 
-  Widget _feed(BuildContext context, HeadlinesState state, FeedLayout layout) {
+  Widget _feed(BuildContext context, HomeState state, FeedLayout layout) {
     final l10n = context.l10n;
     final isList = layout == FeedLayout.list;
     final articles = state.articles;
@@ -234,7 +233,7 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
     );
   }
 
-  Widget _footer(BuildContext context, HeadlinesState state) {
+  Widget _footer(BuildContext context, HomeState state) {
     final showLoader =
         !state.hasReachedMax && state.status != FetchStatus.failure;
     return Padding(

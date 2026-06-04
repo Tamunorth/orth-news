@@ -38,7 +38,6 @@ class _BottomNav extends StatelessWidget {
     final l10n = context.l10n;
     final destinations = <_Dest>[
       _Dest(Icons.home_outlined, Icons.home_rounded, l10n.navHome),
-      _Dest(Icons.search_outlined, Icons.search_rounded, l10n.navSearch),
       _Dest(
         Icons.bookmark_border_rounded,
         Icons.bookmark_rounded,

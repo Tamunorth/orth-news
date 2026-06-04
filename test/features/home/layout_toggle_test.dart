@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:orth_news/core/enums.dart';
 import 'package:orth_news/core/theme/app_theme.dart';
-import 'package:orth_news/features/headlines/presentation/widgets/layout_toggle.dart';
+import 'package:orth_news/features/home/presentation/widgets/layout_toggle.dart';
 
 void main() {
   testWidgets('tapping the inactive grid segment toggles', (tester) async {

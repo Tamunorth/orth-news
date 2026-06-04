@@ -7,20 +7,20 @@ import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/domain/entities/news_category.dart';
 import 'package:orth_news/features/news/domain/usecases/get_top_headlines.dart';
 
-part 'headlines_event.dart';
-part 'headlines_state.dart';
+part 'home_event.dart';
+part 'home_state.dart';
 
-class HeadlinesBloc extends Bloc<HeadlinesEvent, HeadlinesState> {
-  HeadlinesBloc({required GetTopHeadlines getTopHeadlines})
+class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  HomeBloc({required GetTopHeadlines getTopHeadlines})
     : _getTopHeadlines = getTopHeadlines,
-      super(const HeadlinesState()) {
-    on<HeadlinesStarted>(_onStarted);
-    on<HeadlinesRefreshed>(_onRefreshed, transformer: restartable());
-    on<HeadlinesCategoryChanged>(
+      super(const HomeState()) {
+    on<HomeStarted>(_onStarted);
+    on<HomeRefreshed>(_onRefreshed, transformer: restartable());
+    on<HomeCategoryChanged>(
       _onCategoryChanged,
       transformer: restartable(),
     );
-    on<HeadlinesNextPageRequested>(_onNextPage, transformer: droppable());
+    on<HomeNextPageRequested>(_onNextPage, transformer: droppable());
   }
 
   final GetTopHeadlines _getTopHeadlines;
@@ -29,25 +29,25 @@ class HeadlinesBloc extends Bloc<HeadlinesEvent, HeadlinesState> {
   final Map<NewsCategory, _CategoryCache> _cache = {};
 
   Future<void> _onStarted(
-    HeadlinesStarted event,
-    Emitter<HeadlinesState> emit,
+    HomeStarted event,
+    Emitter<HomeState> emit,
   ) => _show(emit, state.category);
 
   Future<void> _onCategoryChanged(
-    HeadlinesCategoryChanged event,
-    Emitter<HeadlinesState> emit,
+    HomeCategoryChanged event,
+    Emitter<HomeState> emit,
   ) => _show(emit, event.category);
 
   /// Shows cached results immediately when present (then refreshes silently),
   /// otherwise shows a loading state while fetching the first page.
   Future<void> _show(
-    Emitter<HeadlinesState> emit,
+    Emitter<HomeState> emit,
     NewsCategory category,
   ) async {
     final cached = _cache[category];
     if (cached != null) {
       emit(
-        HeadlinesState(
+        HomeState(
           status: FetchStatus.success,
           category: category,
           articles: cached.articles,
@@ -62,8 +62,8 @@ class HeadlinesBloc extends Bloc<HeadlinesEvent, HeadlinesState> {
   }
 
   Future<void> _onRefreshed(
-    HeadlinesRefreshed event,
-    Emitter<HeadlinesState> emit,
+    HomeRefreshed event,
+    Emitter<HomeState> emit,
   ) async {
     emit(state.copyWith(isRefreshing: true));
     await _fetchFirstPage(emit, state.category, showLoading: false);
@@ -73,12 +73,12 @@ class HeadlinesBloc extends Bloc<HeadlinesEvent, HeadlinesState> {
   }
 
   Future<void> _fetchFirstPage(
-    Emitter<HeadlinesState> emit,
+    Emitter<HomeState> emit,
     NewsCategory category, {
     required bool showLoading,
   }) async {
     if (showLoading) {
-      emit(HeadlinesState(status: FetchStatus.loading, category: category));
+      emit(HomeState(status: FetchStatus.loading, category: category));
     }
 
     final result = await _getTopHeadlines(category: category, page: 1);
@@ -104,7 +104,7 @@ class HeadlinesBloc extends Bloc<HeadlinesEvent, HeadlinesState> {
         _cache[category] = _CategoryCache(articles, 1, hasReachedMax: reached);
         if (state.category == category) {
           emit(
-            HeadlinesState(
+            HomeState(
               status: FetchStatus.success,
               category: category,
               articles: articles,
@@ -117,8 +117,8 @@ class HeadlinesBloc extends Bloc<HeadlinesEvent, HeadlinesState> {
   }
 
   Future<void> _onNextPage(
-    HeadlinesNextPageRequested event,
-    Emitter<HeadlinesState> emit,
+    HomeNextPageRequested event,
+    Emitter<HomeState> emit,
   ) async {
     if (state.hasReachedMax || state.status != FetchStatus.success) return;
 

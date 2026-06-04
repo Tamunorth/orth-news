@@ -6,8 +6,8 @@ import 'package:orth_news/features/app_shell/view/app_shell.dart';
 import 'package:orth_news/features/article_detail/article_route_args.dart';
 import 'package:orth_news/features/article_detail/presentation/view/article_detail_page.dart';
 import 'package:orth_news/features/bookmarks/presentation/view/bookmarks_page.dart';
-import 'package:orth_news/features/headlines/presentation/bloc/headlines_bloc.dart';
-import 'package:orth_news/features/headlines/presentation/view/headlines_page.dart';
+import 'package:orth_news/features/home/presentation/bloc/home_bloc.dart';
+import 'package:orth_news/features/home/presentation/view/home_page.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/domain/repositories/news_repository.dart';
 import 'package:orth_news/features/news/domain/usecases/get_top_headlines.dart';
@@ -32,27 +32,12 @@ GoRouter createRouter() {
               GoRoute(
                 path: AppRoutes.home,
                 builder: (context, state) => BlocProvider(
-                  create: (context) => HeadlinesBloc(
+                  create: (context) => HomeBloc(
                     getTopHeadlines: GetTopHeadlines(
                       context.read<NewsRepository>(),
                     ),
-                  )..add(const HeadlinesStarted()),
-                  child: const HeadlinesPage(),
-                ),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.search,
-                builder: (context, state) => BlocProvider(
-                  create: (context) => SearchBloc(
-                    searchArticles: SearchArticles(
-                      context.read<NewsRepository>(),
-                    ),
-                  ),
-                  child: const SearchPage(),
+                  )..add(const HomeStarted()),
+                  child: const HomePage(),
                 ),
               ),
             ],
@@ -74,6 +59,16 @@ GoRouter createRouter() {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.search,
+        parentNavigatorKey: rootKey,
+        builder: (context, state) => BlocProvider(
+          create: (context) => SearchBloc(
+            searchArticles: SearchArticles(context.read<NewsRepository>()),
+          ),
+          child: const SearchPage(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.article,

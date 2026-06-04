@@ -4,7 +4,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:orth_news/core/enums.dart';
 import 'package:orth_news/core/error/failure.dart';
-import 'package:orth_news/features/headlines/presentation/bloc/headlines_bloc.dart';
+import 'package:orth_news/features/home/presentation/bloc/home_bloc.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/domain/entities/news_category.dart';
 import 'package:orth_news/features/news/domain/usecases/get_top_headlines.dart';
@@ -31,37 +31,37 @@ void main() {
     ).thenAnswer((_) async => result);
   }
 
-  HeadlinesBloc build() => HeadlinesBloc(getTopHeadlines: getTopHeadlines);
+  HomeBloc build() => HomeBloc(getTopHeadlines: getTopHeadlines);
 
-  blocTest<HeadlinesBloc, HeadlinesState>(
+  blocTest<HomeBloc, HomeState>(
     'emits [loading, success] when started',
     setUp: () => stub(Right(page(5))),
     build: build,
-    act: (bloc) => bloc.add(const HeadlinesStarted()),
+    act: (bloc) => bloc.add(const HomeStarted()),
     expect: () => [
-      isA<HeadlinesState>().having(
+      isA<HomeState>().having(
         (s) => s.status,
         'status',
         FetchStatus.loading,
       ),
-      isA<HeadlinesState>()
+      isA<HomeState>()
           .having((s) => s.status, 'status', FetchStatus.success)
           .having((s) => s.articles.length, 'count', 5),
     ],
   );
 
-  blocTest<HeadlinesBloc, HeadlinesState>(
+  blocTest<HomeBloc, HomeState>(
     'emits [loading, failure] on error',
     setUp: () => stub(const Left(ServerFailure())),
     build: build,
-    act: (bloc) => bloc.add(const HeadlinesStarted()),
+    act: (bloc) => bloc.add(const HomeStarted()),
     expect: () => [
-      isA<HeadlinesState>().having(
+      isA<HomeState>().having(
         (s) => s.status,
         'status',
         FetchStatus.loading,
       ),
-      isA<HeadlinesState>().having(
+      isA<HomeState>().having(
         (s) => s.status,
         'status',
         FetchStatus.failure,

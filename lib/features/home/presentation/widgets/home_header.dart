@@ -4,9 +4,8 @@ import 'package:orth_news/app/router/app_routes.dart';
 import 'package:orth_news/core/extensions/context_extensions.dart';
 import 'package:orth_news/core/theme/app_colors.dart';
 import 'package:orth_news/core/theme/app_radius.dart';
-import 'package:orth_news/features/search/presentation/search_focus.dart';
 
-/// Wordmark + a search bar that jumps to the Search tab with the field focused.
+/// Wordmark + a search bar that pushes the full-screen Search route.
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
 
@@ -36,10 +35,7 @@ class HomeHeader extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           GestureDetector(
-            onTap: () {
-              SearchFocus.instance.request();
-              context.go(AppRoutes.search);
-            },
+            onTap: () => context.push(AppRoutes.search),
             child: Container(
               height: 48,
               padding: const EdgeInsets.symmetric(horizontal: 14),

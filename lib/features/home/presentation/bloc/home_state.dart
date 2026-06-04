@@ -1,7 +1,7 @@
-part of 'headlines_bloc.dart';
+part of 'home_bloc.dart';
 
-class HeadlinesState extends Equatable {
-  const HeadlinesState({
+class HomeState extends Equatable {
+  const HomeState({
     this.status = FetchStatus.initial,
     this.category = NewsCategory.general,
     this.articles = const [],
@@ -21,7 +21,7 @@ class HeadlinesState extends Equatable {
 
   bool get isEmpty => status == FetchStatus.success && articles.isEmpty;
 
-  HeadlinesState copyWith({
+  HomeState copyWith({
     FetchStatus? status,
     NewsCategory? category,
     List<Article>? articles,
@@ -30,7 +30,7 @@ class HeadlinesState extends Equatable {
     bool? isRefreshing,
     String? errorMessage,
   }) {
-    return HeadlinesState(
+    return HomeState(
       status: status ?? this.status,
       category: category ?? this.category,
       articles: articles ?? this.articles,
