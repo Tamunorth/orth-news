@@ -68,13 +68,4 @@ void main() {
       ),
     ],
   );
-
-  blocTest<HeadlinesBloc, HeadlinesState>(
-    'toggling layout switches list to grid',
-    build: build,
-    act: (bloc) => bloc.add(const HeadlinesLayoutToggled()),
-    expect: () => [
-      isA<HeadlinesState>().having((s) => s.layout, 'layout', FeedLayout.grid),
-    ],
-  );
 }

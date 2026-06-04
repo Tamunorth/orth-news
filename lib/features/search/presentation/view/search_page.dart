@@ -7,12 +7,13 @@ import 'package:orth_news/core/extensions/context_extensions.dart';
 import 'package:orth_news/core/theme/app_colors.dart';
 import 'package:orth_news/core/widgets/app_empty_view.dart';
 import 'package:orth_news/core/widgets/app_error_view.dart';
-import 'package:orth_news/core/widgets/app_loading_view.dart';
 import 'package:orth_news/core/widgets/search_field.dart';
+import 'package:orth_news/core/widgets/skeletons.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/presentation/widgets/article_list_tile.dart';
 import 'package:orth_news/features/news/presentation/widgets/bookmark_button.dart';
 import 'package:orth_news/features/search/presentation/bloc/search_bloc.dart';
+import 'package:orth_news/features/search/presentation/search_focus.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -24,20 +25,30 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final _controller = TextEditingController();
   final _scroll = ScrollController();
+  final _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _scroll.addListener(_onScroll);
+    SearchFocus.instance.signal.addListener(_focusField);
   }
 
   @override
   void dispose() {
+    SearchFocus.instance.signal.removeListener(_focusField);
     _controller.dispose();
+    _focusNode.dispose();
     _scroll
       ..removeListener(_onScroll)
       ..dispose();
     super.dispose();
+  }
+
+  // Re-focus when arriving from the home search bar (the tab is kept alive, so
+  // `autofocus` only fires the first time).
+  void _focusField() {
+    if (mounted) _focusNode.requestFocus();
   }
 
   void _onScroll() {
@@ -69,6 +80,7 @@ class _SearchPageState extends State<SearchPage> {
             padding: const EdgeInsets.symmetric(horizontal: 18),
             child: SearchField(
               controller: _controller,
+              focusNode: _focusNode,
               hint: l10n.searchHint,
               autofocus: true,
               onChanged: (value) =>
@@ -99,7 +111,7 @@ class _SearchPageState extends State<SearchPage> {
           subtitle: l10n.searchPromptSubtitle,
         );
       case FetchStatus.loading when state.results.isEmpty:
-        return const AppLoadingView();
+        return const FeedSkeleton(featured: false, rows: 7);
       case FetchStatus.failure when state.results.isEmpty:
         return AppErrorView(
           message: state.errorMessage ?? '',
@@ -128,7 +140,7 @@ class _SearchPageState extends State<SearchPage> {
           if (state.hasReachedMax) return const SizedBox(height: 8);
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
-            child: AppLoadingView(),
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2.4)),
           );
         }
         final article = results[index];

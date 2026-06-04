@@ -7,12 +7,12 @@ sealed class HeadlinesEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Initial load of the current category's first page.
+/// Initial load of the current category (uses cache if present).
 final class HeadlinesStarted extends HeadlinesEvent {
   const HeadlinesStarted();
 }
 
-/// Pull-to-refresh: reload the first page.
+/// Pull-to-refresh: force a fresh fetch of the current category.
 final class HeadlinesRefreshed extends HeadlinesEvent {
   const HeadlinesRefreshed();
 }
@@ -29,8 +29,4 @@ final class HeadlinesCategoryChanged extends HeadlinesEvent {
 /// Infinite-scroll: append the next page (capped at the free-tier limit).
 final class HeadlinesNextPageRequested extends HeadlinesEvent {
   const HeadlinesNextPageRequested();
-}
-
-final class HeadlinesLayoutToggled extends HeadlinesEvent {
-  const HeadlinesLayoutToggled();
 }

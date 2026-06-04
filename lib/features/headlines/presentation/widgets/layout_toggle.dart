@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:orth_news/core/enums.dart';
 import 'package:orth_news/core/theme/app_colors.dart';
+import 'package:orth_news/core/theme/app_radius.dart';
 
 /// Two-icon segmented control for switching the feed between list and grid.
 /// Tapping the inactive side flips the layout.
@@ -17,7 +18,7 @@ class LayoutToggle extends StatelessWidget {
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: colors.field,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppRadius.field),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -61,7 +62,7 @@ class _Segment extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: active ? colors.accent : Colors.transparent,
-          borderRadius: BorderRadius.circular(7),
+          borderRadius: BorderRadius.circular(AppRadius.segment),
         ),
         child: Icon(
           icon,

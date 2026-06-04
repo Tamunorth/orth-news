@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:orth_news/core/extensions/context_extensions.dart';
 import 'package:orth_news/core/theme/app_colors.dart';
+import 'package:orth_news/core/theme/app_radius.dart';
 
 /// Rounded monochrome search input used by Search and Bookmarks. Shows a clear
 /// button only when there is text.
@@ -8,6 +9,7 @@ class SearchField extends StatelessWidget {
   const SearchField({
     required this.controller,
     required this.hint,
+    this.focusNode,
     this.onChanged,
     this.onClear,
     this.autofocus = false,
@@ -16,6 +18,7 @@ class SearchField extends StatelessWidget {
 
   final TextEditingController controller;
   final String hint;
+  final FocusNode? focusNode;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
   final bool autofocus;
@@ -28,7 +31,7 @@ class SearchField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         color: colors.field,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.field),
       ),
       child: Row(
         children: [
@@ -37,6 +40,7 @@ class SearchField extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: controller,
+              focusNode: focusNode,
               autofocus: autofocus,
               onChanged: onChanged,
               textInputAction: TextInputAction.search,

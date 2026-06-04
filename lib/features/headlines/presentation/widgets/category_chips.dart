@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:orth_news/core/extensions/context_extensions.dart';
 import 'package:orth_news/core/theme/app_colors.dart';
+import 'package:orth_news/core/theme/app_radius.dart';
 import 'package:orth_news/features/news/domain/entities/news_category.dart';
 
-/// Horizontal category selector. The active chip is a solid accent pill.
-class CategoryChips extends StatelessWidget {
+/// Horizontal category selector. The selected chip is a solid accent fill and
+/// is reordered to the front so it never stays hidden off-screen.
+class CategoryChips extends StatefulWidget {
   const CategoryChips({
     required this.selected,
     required this.onSelected,
@@ -15,20 +19,54 @@ class CategoryChips extends StatelessWidget {
   final ValueChanged<NewsCategory> onSelected;
 
   @override
+  State<CategoryChips> createState() => _CategoryChipsState();
+}
+
+class _CategoryChipsState extends State<CategoryChips> {
+  final _controller = ScrollController();
+
+  @override
+  void didUpdateWidget(CategoryChips oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selected != widget.selected && _controller.hasClients) {
+      unawaited(
+        _controller.animateTo(
+          0,
+          duration: const Duration(milliseconds: 240),
+          curve: Curves.easeOut,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  List<NewsCategory> get _ordered => [
+    widget.selected,
+    ...NewsCategory.values.where((c) => c != widget.selected),
+  ];
+
+  @override
   Widget build(BuildContext context) {
+    final ordered = _ordered;
     return SizedBox(
       height: 40,
       child: ListView.separated(
+        controller: _controller,
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 18),
-        itemCount: NewsCategory.values.length,
+        itemCount: ordered.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final category = NewsCategory.values[index];
+          final category = ordered[index];
           return _Chip(
             label: _labelFor(context, category),
-            selected: category == selected,
-            onTap: () => onSelected(category),
+            selected: category == widget.selected,
+            onTap: () => widget.onSelected(category),
           );
         },
       ),
@@ -71,7 +109,7 @@ class _Chip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: selected ? colors.accent : colors.field,
-          borderRadius: BorderRadius.circular(100),
+          borderRadius: BorderRadius.circular(AppRadius.field),
         ),
         child: Text(
           label,

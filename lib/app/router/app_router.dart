@@ -13,7 +13,6 @@ import 'package:orth_news/features/news/domain/usecases/get_top_headlines.dart';
 import 'package:orth_news/features/news/domain/usecases/search_articles.dart';
 import 'package:orth_news/features/search/presentation/bloc/search_bloc.dart';
 import 'package:orth_news/features/search/presentation/view/search_page.dart';
-import 'package:orth_news/features/settings/presentation/bloc/settings_bloc.dart';
 import 'package:orth_news/features/settings/presentation/view/settings_page.dart';
 
 GoRouter createRouter() {
@@ -36,10 +35,6 @@ GoRouter createRouter() {
                     getTopHeadlines: GetTopHeadlines(
                       context.read<NewsRepository>(),
                     ),
-                    initialLayout: context
-                        .read<SettingsBloc>()
-                        .state
-                        .defaultLayout,
                   )..add(const HeadlinesStarted()),
                   child: const HeadlinesPage(),
                 ),
