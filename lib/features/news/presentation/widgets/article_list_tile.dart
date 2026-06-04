@@ -6,7 +6,9 @@ import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/presentation/widgets/source_label.dart';
 
 /// Row item used by the feed, search and bookmarks lists: thumbnail, title
-/// (2 lines), description (2 lines, per the brief), then the source row.
+/// (2 lines), description (2 lines, per the brief), then the source row. An
+/// optional [trailing] (the bookmark) is pinned to the top-right so its
+/// position is consistent across rows regardless of text length.
 class ArticleListTile extends StatelessWidget {
   const ArticleListTile({
     required this.article,
@@ -63,10 +65,11 @@ class ArticleListTile extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 9),
-                  SourceLabel(article: article, trailing: trailing),
+                  SourceLabel(article: article),
                 ],
               ),
             ),
+            if (trailing != null) ...[const SizedBox(width: 8), trailing!],
           ],
         ),
       ),

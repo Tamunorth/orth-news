@@ -67,6 +67,10 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
           Expanded(
             child: BlocBuilder<HeadlinesBloc, HeadlinesState>(
               builder: (context, state) {
+                final layout = context
+                    .watch<SettingsBloc>()
+                    .state
+                    .defaultLayout;
                 return RefreshIndicator(
                   color: context.colors.accent,
                   onRefresh: () {
@@ -77,7 +81,7 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
                   child: NotificationListener<ScrollNotification>(
                     onNotification: _onScrollNotification,
                     child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 260),
+                      duration: const Duration(milliseconds: 280),
                       switchInCurve: Curves.easeOut,
                       switchOutCurve: Curves.easeIn,
                       transitionBuilder: (child, animation) => FadeTransition(
@@ -90,9 +94,11 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
                           child: child,
                         ),
                       ),
+                      // Keying on category + layout makes both a category switch
+                      // and a list/grid toggle crossfade instead of jump.
                       child: KeyedSubtree(
-                        key: ValueKey(state.category),
-                        child: _body(context, state),
+                        key: ValueKey('${state.category.name}-${layout.name}'),
+                        child: _body(context, state, layout),
                       ),
                     ),
                   ),
@@ -105,7 +111,7 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
     );
   }
 
-  Widget _body(BuildContext context, HeadlinesState state) {
+  Widget _body(BuildContext context, HeadlinesState state, FeedLayout layout) {
     if (state.articles.isEmpty) {
       return switch (state.status) {
         FetchStatus.failure => _fill(
@@ -125,7 +131,7 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
         FetchStatus.initial || FetchStatus.loading => const FeedSkeleton(),
       };
     }
-    return _feed(context, state);
+    return _feed(context, state, layout);
   }
 
   Widget _fill(Widget child) => CustomScrollView(
@@ -133,9 +139,8 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
     slivers: [SliverFillRemaining(hasScrollBody: false, child: child)],
   );
 
-  Widget _feed(BuildContext context, HeadlinesState state) {
+  Widget _feed(BuildContext context, HeadlinesState state, FeedLayout layout) {
     final l10n = context.l10n;
-    final layout = context.watch<SettingsBloc>().state.defaultLayout;
     final isList = layout == FeedLayout.list;
     final articles = state.articles;
     final featured = articles.first;
