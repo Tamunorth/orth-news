@@ -198,6 +198,7 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
         itemBuilder: (context, index) {
           final article = articles[index];
           return ArticleListTile(
+            key: ValueKey(article.url),
             article: article,
             heroTag: 'home-${article.url}',
             onTap: () => _open(article),
@@ -223,6 +224,7 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
         delegate: SliverChildBuilderDelegate((context, index) {
           final article = articles[index];
           return ArticleGridCard(
+            key: ValueKey(article.url),
             article: article,
             heroTag: 'home-${article.url}',
             onTap: () => _open(article),

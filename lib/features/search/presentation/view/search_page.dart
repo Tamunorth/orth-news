@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -27,17 +29,22 @@ class _SearchPageState extends State<SearchPage> {
   final _controller = TextEditingController();
   final _scroll = ScrollController();
   final _focusNode = FocusNode();
+  Timer? _focusTimer;
 
   @override
   void initState() {
     super.initState();
     _scroll.addListener(_onScroll);
-    SearchFocus.instance.signal.addListener(_focusField);
+    SearchFocus.instance.signal.addListener(_onFocusRequested);
+    // First visit from the home bar: the request fired before this listener
+    // existed, so honour the pending flag here.
+    if (SearchFocus.instance.pending) _onFocusRequested();
   }
 
   @override
   void dispose() {
-    SearchFocus.instance.signal.removeListener(_focusField);
+    _focusTimer?.cancel();
+    SearchFocus.instance.signal.removeListener(_onFocusRequested);
     _controller.dispose();
     _focusNode.dispose();
     _scroll
@@ -46,10 +53,15 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
-  // Re-focus when arriving from the home search bar (the tab is kept alive, so
-  // `autofocus` only fires the first time).
-  void _focusField() {
-    if (mounted) _focusNode.requestFocus();
+  // Focus only after the tab transition settles, otherwise the field is still
+  // off-screen and the request is dropped.
+  void _onFocusRequested() {
+    if (!SearchFocus.instance.pending) return;
+    SearchFocus.instance.consume();
+    _focusTimer?.cancel();
+    _focusTimer = Timer(const Duration(milliseconds: 150), () {
+      if (mounted) _focusNode.requestFocus();
+    });
   }
 
   void _onScroll() {
@@ -85,7 +97,6 @@ class _SearchPageState extends State<SearchPage> {
               controller: _controller,
               focusNode: _focusNode,
               hint: l10n.searchHint,
-              autofocus: true,
               onChanged: (value) =>
                   context.read<SearchBloc>().add(SearchQueryChanged(value)),
               onClear: () {
@@ -148,6 +159,7 @@ class _SearchPageState extends State<SearchPage> {
         }
         final article = results[index];
         return Column(
+          key: ValueKey(article.url),
           children: [
             ArticleListTile(
               article: article,

@@ -105,6 +105,7 @@ class _BookmarksPageState extends State<BookmarksPage> {
                   itemBuilder: (context, index) {
                     final article = items[index];
                     return ArticleListTile(
+                      key: ValueKey(article.url),
                       article: article,
                       heroTag: 'bookmarks-${article.url}',
                       onTap: () => _open(article),

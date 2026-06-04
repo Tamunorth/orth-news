@@ -4,8 +4,9 @@ import 'package:orth_news/core/theme/app_colors.dart';
 import 'package:orth_news/features/bookmarks/presentation/bloc/bookmarks_bloc.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 
-/// Toggles the article in [BookmarksBloc] and reflects saved state. Rebuilds
-/// only when this article's saved status changes.
+/// Toggles the article in [BookmarksBloc] and reflects saved state. Rebuilds on
+/// every bookmarks change (the icon is cheap) so a recycled row never shows a
+/// stale icon.
 class BookmarkButton extends StatelessWidget {
   const BookmarkButton({required this.article, this.size = 20, super.key});
 
@@ -16,9 +17,6 @@ class BookmarkButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return BlocBuilder<BookmarksBloc, BookmarksState>(
-      buildWhen: (previous, current) =>
-          previous.isBookmarked(article.url) !=
-          current.isBookmarked(article.url),
       builder: (context, state) {
         final saved = state.isBookmarked(article.url);
         return GestureDetector(

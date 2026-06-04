@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-/// Lets the home search bar ask the Search page to focus its field, even on
-/// repeat visits (the tab branch is kept alive by the shell, so `autofocus`
-/// alone only fires once).
+/// Lets the home search bar ask the Search page to focus its field. [pending]
+/// covers the first visit (where the page's listener registers after the
+/// request fires); [signal] covers repeat visits while the page is kept alive.
 class SearchFocus {
   SearchFocus._();
 
@@ -10,5 +10,12 @@ class SearchFocus {
 
   final ValueNotifier<int> signal = ValueNotifier<int>(0);
 
-  void request() => signal.value++;
+  bool pending = false;
+
+  void request() {
+    pending = true;
+    signal.value++;
+  }
+
+  void consume() => pending = false;
 }
