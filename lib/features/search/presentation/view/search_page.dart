@@ -1,0 +1,149 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:orth_news/app/router/app_routes.dart';
+import 'package:orth_news/core/enums.dart';
+import 'package:orth_news/core/extensions/context_extensions.dart';
+import 'package:orth_news/core/theme/app_colors.dart';
+import 'package:orth_news/core/widgets/app_empty_view.dart';
+import 'package:orth_news/core/widgets/app_error_view.dart';
+import 'package:orth_news/core/widgets/app_loading_view.dart';
+import 'package:orth_news/core/widgets/search_field.dart';
+import 'package:orth_news/features/news/domain/entities/article.dart';
+import 'package:orth_news/features/news/presentation/widgets/article_list_tile.dart';
+import 'package:orth_news/features/news/presentation/widgets/bookmark_button.dart';
+import 'package:orth_news/features/search/presentation/bloc/search_bloc.dart';
+
+class SearchPage extends StatefulWidget {
+  const SearchPage({super.key});
+
+  @override
+  State<SearchPage> createState() => _SearchPageState();
+}
+
+class _SearchPageState extends State<SearchPage> {
+  final _controller = TextEditingController();
+  final _scroll = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scroll
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scroll.hasClients) return;
+    final position = _scroll.position;
+    if (position.pixels >= position.maxScrollExtent - 400) {
+      context.read<SearchBloc>().add(const SearchNextPageRequested());
+    }
+  }
+
+  void _open(Article article) =>
+      context.push(AppRoutes.article, extra: article);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return SafeArea(
+      bottom: false,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 4, 18, 12),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(l10n.navSearch, style: context.text.headlineMedium),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: SearchField(
+              controller: _controller,
+              hint: l10n.searchHint,
+              autofocus: true,
+              onChanged: (value) =>
+                  context.read<SearchBloc>().add(SearchQueryChanged(value)),
+              onClear: () {
+                _controller.clear();
+                context.read<SearchBloc>().add(const SearchCleared());
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: BlocBuilder<SearchBloc, SearchState>(builder: _results),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _results(BuildContext context, SearchState state) {
+    final l10n = context.l10n;
+
+    switch (state.status) {
+      case FetchStatus.initial:
+        return AppEmptyView(
+          icon: Icons.search_rounded,
+          title: l10n.searchPromptTitle,
+          subtitle: l10n.searchPromptSubtitle,
+        );
+      case FetchStatus.loading when state.results.isEmpty:
+        return const AppLoadingView();
+      case FetchStatus.failure when state.results.isEmpty:
+        return AppErrorView(
+          message: state.errorMessage ?? '',
+          onRetry: () =>
+              context.read<SearchBloc>().add(SearchQueryChanged(state.query)),
+        );
+      case _ when state.isEmpty:
+        return AppEmptyView(
+          icon: Icons.search_off_rounded,
+          title: l10n.emptySearchTitle,
+          subtitle: l10n.emptySearchSubtitle(state.query),
+        );
+      case _:
+        return _resultList(context, state);
+    }
+  }
+
+  Widget _resultList(BuildContext context, SearchState state) {
+    final results = state.results;
+    return ListView.builder(
+      controller: _scroll,
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      itemCount: results.length + 1,
+      itemBuilder: (context, index) {
+        if (index >= results.length) {
+          if (state.hasReachedMax) return const SizedBox(height: 8);
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: AppLoadingView(),
+          );
+        }
+        final article = results[index];
+        return Column(
+          children: [
+            ArticleListTile(
+              article: article,
+              onTap: () => _open(article),
+              trailing: BookmarkButton(article: article, size: 18),
+            ),
+            if (index < results.length - 1)
+              Divider(height: 1, color: context.colors.line),
+          ],
+        );
+      },
+    );
+  }
+}

@@ -10,3 +10,5 @@ linter:
     # Docs are kept intentional and sparse in this project, not blanket-required.
     public_member_api_docs: false
     lines_longer_than_80_chars: false
+    # pubspec is grouped by concern, not alphabetised.
+    sort_pub_dependencies: false
