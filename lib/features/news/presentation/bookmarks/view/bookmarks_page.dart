@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:orth_news/app/router/app_routes.dart';
+import 'package:orth_news/app/router/article_route_args.dart';
 import 'package:orth_news/core/extensions/context_extensions.dart';
 import 'package:orth_news/core/theme/app_colors.dart';
 import 'package:orth_news/core/widgets/app_empty_view.dart';
 import 'package:orth_news/core/widgets/search_field.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/presentation/bookmarks/bloc/bookmarks_bloc.dart';
-import 'package:orth_news/features/news/presentation/detail/article_route_args.dart';
 import 'package:orth_news/features/news/presentation/widgets/article_list_tile.dart';
 import 'package:orth_news/features/news/presentation/widgets/bookmark_button.dart';
 
@@ -21,7 +21,6 @@ class BookmarksPage extends StatefulWidget {
 
 class _BookmarksPageState extends State<BookmarksPage> {
   final _controller = TextEditingController();
-  String _query = '';
 
   @override
   void dispose() {
@@ -36,18 +35,6 @@ class _BookmarksPageState extends State<BookmarksPage> {
       heroTag: 'bookmarks-${article.url}',
     ),
   );
-
-  List<Article> _filter(List<Article> articles) {
-    final query = _query.trim().toLowerCase();
-    if (query.isEmpty) return articles;
-    return articles
-        .where(
-          (a) =>
-              a.title.toLowerCase().contains(query) ||
-              (a.sourceName ?? '').toLowerCase().contains(query),
-        )
-        .toList();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,10 +58,14 @@ class _BookmarksPageState extends State<BookmarksPage> {
             child: SearchField(
               controller: _controller,
               hint: l10n.searchSavedHint,
-              onChanged: (value) => setState(() => _query = value),
+              onChanged: (value) => context.read<BookmarksBloc>().add(
+                BookmarksQueryChanged(value),
+              ),
               onClear: () {
                 _controller.clear();
-                setState(() => _query = '');
+                context.read<BookmarksBloc>().add(
+                  const BookmarksQueryChanged(''),
+                );
               },
             ),
           ),
@@ -89,12 +80,12 @@ class _BookmarksPageState extends State<BookmarksPage> {
                     subtitle: l10n.emptyBookmarksSubtitle,
                   );
                 }
-                final items = _filter(state.articles);
+                final items = state.filtered;
                 if (items.isEmpty) {
                   return AppEmptyView(
                     icon: Icons.search_off_rounded,
                     title: l10n.emptySearchTitle,
-                    subtitle: l10n.emptySearchSubtitle(_query),
+                    subtitle: l10n.emptySearchSubtitle(state.query),
                   );
                 }
                 return ListView.separated(

@@ -12,6 +12,7 @@ part 'bookmarks_state.dart';
 class BookmarksBloc extends HydratedBloc<BookmarksEvent, BookmarksState> {
   BookmarksBloc() : super(const BookmarksState()) {
     on<BookmarkToggled>(_onToggled);
+    on<BookmarksQueryChanged>(_onQueryChanged);
   }
 
   void _onToggled(BookmarkToggled event, Emitter<BookmarksState> emit) {
@@ -19,7 +20,14 @@ class BookmarksBloc extends HydratedBloc<BookmarksEvent, BookmarksState> {
     final updated = state.isBookmarked(article.url)
         ? state.articles.where((a) => a.url != article.url).toList()
         : [article, ...state.articles];
-    emit(BookmarksState(articles: updated));
+    emit(state.copyWith(articles: updated));
+  }
+
+  void _onQueryChanged(
+    BookmarksQueryChanged event,
+    Emitter<BookmarksState> emit,
+  ) {
+    emit(state.copyWith(query: event.query));
   }
 
   @override

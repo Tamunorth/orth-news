@@ -16,3 +16,13 @@ final class BookmarkToggled extends BookmarksEvent {
   @override
   List<Object?> get props => [article];
 }
+
+/// Updates the in-memory search query used to filter saved articles.
+final class BookmarksQueryChanged extends BookmarksEvent {
+  const BookmarksQueryChanged(this.query);
+
+  final String query;
+
+  @override
+  List<Object?> get props => [query];
+}
