@@ -1,0 +1,16 @@
+flutter_native_splash:
+  # Monochrome OrthNews splash — light + dark, matching the app theme.
+  color: "#FFFFFF"
+  image: assets/splash/splash_light.png
+  color_dark: "#0C0C0E"
+  image_dark: assets/splash/splash_dark.png
+
+  android: true
+  ios: true
+  web: false
+
+  android_12:
+    color: "#FFFFFF"
+    image: assets/splash/splash_light.png
+    color_dark: "#0C0C0E"
+    image_dark: assets/splash/splash_dark.png
