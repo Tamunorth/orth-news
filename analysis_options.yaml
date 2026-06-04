@@ -1,0 +1,12 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - lib/l10n/generated/**
+    - "**/*.g.dart"
+
+linter:
+  rules:
+    # Docs are kept intentional and sparse in this project, not blanket-required.
+    public_member_api_docs: false
+    lines_longer_than_80_chars: false
