@@ -12,12 +12,14 @@ class ArticleListTile extends StatelessWidget {
     required this.article,
     required this.onTap,
     this.trailing,
+    this.heroTag,
     super.key,
   });
 
   final Article article;
   final VoidCallback onTap;
   final Widget? trailing;
+  final Object? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +38,7 @@ class ArticleListTile extends StatelessWidget {
               width: 84,
               height: 84,
               borderRadius: 14,
+              heroTag: heroTag,
             ),
             const SizedBox(width: 13),
             Expanded(

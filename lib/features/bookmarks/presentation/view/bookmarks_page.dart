@@ -6,6 +6,7 @@ import 'package:orth_news/core/extensions/context_extensions.dart';
 import 'package:orth_news/core/theme/app_colors.dart';
 import 'package:orth_news/core/widgets/app_empty_view.dart';
 import 'package:orth_news/core/widgets/search_field.dart';
+import 'package:orth_news/features/article_detail/article_route_args.dart';
 import 'package:orth_news/features/bookmarks/presentation/bloc/bookmarks_bloc.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/presentation/widgets/article_list_tile.dart';
@@ -28,8 +29,13 @@ class _BookmarksPageState extends State<BookmarksPage> {
     super.dispose();
   }
 
-  void _open(Article article) =>
-      context.push(AppRoutes.article, extra: article);
+  void _open(Article article) => context.push(
+    AppRoutes.article,
+    extra: ArticleRouteArgs(
+      article: article,
+      heroTag: 'bookmarks-${article.url}',
+    ),
+  );
 
   List<Article> _filter(List<Article> articles) {
     final query = _query.trim().toLowerCase();
@@ -100,6 +106,7 @@ class _BookmarksPageState extends State<BookmarksPage> {
                     final article = items[index];
                     return ArticleListTile(
                       article: article,
+                      heroTag: 'bookmarks-${article.url}',
                       onTap: () => _open(article),
                       trailing: BookmarkButton(article: article, size: 18),
                     );

@@ -10,11 +10,13 @@ class ArticleGridCard extends StatelessWidget {
   const ArticleGridCard({
     required this.article,
     required this.onTap,
+    this.heroTag,
     super.key,
   });
 
   final Article article;
   final VoidCallback onTap;
+  final Object? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +31,7 @@ class ArticleGridCard extends StatelessWidget {
             width: double.infinity,
             height: 112,
             borderRadius: 14,
+            heroTag: heroTag,
           ),
           const SizedBox(height: 10),
           Text(

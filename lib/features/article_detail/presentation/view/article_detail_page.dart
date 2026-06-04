@@ -13,9 +13,10 @@ import 'package:url_launcher/url_launcher.dart';
 /// is passed in via the router's `extra`. Body text is truncated by the API, so
 /// we link out to the source for the full read.
 class ArticleDetailPage extends StatelessWidget {
-  const ArticleDetailPage({required this.article, super.key});
+  const ArticleDetailPage({required this.article, this.heroTag, super.key});
 
   final Article article;
+  final Object? heroTag;
 
   Future<void> _openOriginal(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
@@ -79,6 +80,7 @@ class ArticleDetailPage extends StatelessWidget {
                       width: double.infinity,
                       height: 220,
                       borderRadius: 18,
+                      heroTag: heroTag,
                     ),
                     const SizedBox(height: 20),
                     Text(article.title, style: context.text.headlineSmall),

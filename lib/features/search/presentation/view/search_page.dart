@@ -9,6 +9,7 @@ import 'package:orth_news/core/widgets/app_empty_view.dart';
 import 'package:orth_news/core/widgets/app_error_view.dart';
 import 'package:orth_news/core/widgets/search_field.dart';
 import 'package:orth_news/core/widgets/skeletons.dart';
+import 'package:orth_news/features/article_detail/article_route_args.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/presentation/widgets/article_list_tile.dart';
 import 'package:orth_news/features/news/presentation/widgets/bookmark_button.dart';
@@ -59,8 +60,10 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  void _open(Article article) =>
-      context.push(AppRoutes.article, extra: article);
+  void _open(Article article) => context.push(
+    AppRoutes.article,
+    extra: ArticleRouteArgs(article: article, heroTag: 'search-${article.url}'),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +151,7 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             ArticleListTile(
               article: article,
+              heroTag: 'search-${article.url}',
               onTap: () => _open(article),
               trailing: BookmarkButton(article: article, size: 18),
             ),

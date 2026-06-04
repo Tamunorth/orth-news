@@ -9,11 +9,13 @@ class FeaturedArticleCard extends StatelessWidget {
   const FeaturedArticleCard({
     required this.article,
     required this.onTap,
+    this.heroTag,
     super.key,
   });
 
   final Article article;
   final VoidCallback onTap;
+  final Object? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,7 @@ class FeaturedArticleCard extends StatelessWidget {
             width: double.infinity,
             height: 190,
             borderRadius: 18,
+            heroTag: heroTag,
           ),
           const SizedBox(height: 13),
           Text(

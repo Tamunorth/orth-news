@@ -4,13 +4,14 @@ import 'package:orth_news/core/theme/app_colors.dart';
 
 /// Network image with a monochrome placeholder. NewsAPI's `urlToImage` is often
 /// null or points at a dead host, so we guard null before building and keep an
-/// error fallback.
+/// error fallback. Pass [heroTag] to enable a shared-element transition.
 class ArticleImage extends StatelessWidget {
   const ArticleImage({
     required this.url,
     this.width,
     this.height,
     this.borderRadius = 12,
+    this.heroTag,
     super.key,
   });
 
@@ -18,6 +19,7 @@ class ArticleImage extends StatelessWidget {
   final double? width;
   final double? height;
   final double borderRadius;
+  final Object? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,7 @@ class ArticleImage extends StatelessWidget {
       ),
     );
 
-    return ClipRRect(
+    final image = ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: SizedBox(
         width: width,
@@ -44,5 +46,8 @@ class ArticleImage extends StatelessWidget {
               ),
       ),
     );
+
+    if (heroTag == null) return image;
+    return Hero(tag: heroTag!, child: image);
   }
 }

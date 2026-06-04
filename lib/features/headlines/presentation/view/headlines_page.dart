@@ -9,6 +9,7 @@ import 'package:orth_news/core/widgets/app_empty_view.dart';
 import 'package:orth_news/core/widgets/app_error_view.dart';
 import 'package:orth_news/core/widgets/app_loading_view.dart';
 import 'package:orth_news/core/widgets/skeletons.dart';
+import 'package:orth_news/features/article_detail/article_route_args.dart';
 import 'package:orth_news/features/headlines/presentation/bloc/headlines_bloc.dart';
 import 'package:orth_news/features/headlines/presentation/widgets/category_chips.dart';
 import 'package:orth_news/features/headlines/presentation/widgets/home_header.dart';
@@ -30,32 +31,19 @@ class HeadlinesPage extends StatefulWidget {
 }
 
 class _HeadlinesPageState extends State<HeadlinesPage> {
-  final _controller = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _controller.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _controller
-      ..removeListener(_onScroll)
-      ..dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (!_controller.hasClients) return;
-    final position = _controller.position;
-    if (position.pixels >= position.maxScrollExtent - 400) {
+  bool _onScrollNotification(ScrollNotification notification) {
+    final metrics = notification.metrics;
+    if (metrics.axis == Axis.vertical &&
+        metrics.pixels >= metrics.maxScrollExtent - 400) {
       context.read<HeadlinesBloc>().add(const HeadlinesNextPageRequested());
     }
+    return false;
   }
 
-  void _openArticle(Article article) =>
-      context.push(AppRoutes.article, extra: article);
+  void _open(Article article) => context.push(
+    AppRoutes.article,
+    extra: ArticleRouteArgs(article: article, heroTag: 'home-${article.url}'),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +52,6 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
       child: Column(
         children: [
           const HomeHeader(),
-          // Category drives the whole feed, so it sits up top and stays
-          // visible even while the list below is loading.
           BlocSelector<HeadlinesBloc, HeadlinesState, NewsCategory>(
             selector: (state) => state.category,
             builder: (context, category) => Padding(
@@ -88,10 +74,27 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
                       ..add(const HeadlinesRefreshed());
                     return bloc.stream.firstWhere((s) => !s.isRefreshing);
                   },
-                  child: _Body(
-                    state: state,
-                    controller: _controller,
-                    onOpen: _openArticle,
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: _onScrollNotification,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 260),
+                      switchInCurve: Curves.easeOut,
+                      switchOutCurve: Curves.easeIn,
+                      transitionBuilder: (child, animation) => FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.02),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: child,
+                        ),
+                      ),
+                      child: KeyedSubtree(
+                        key: ValueKey(state.category),
+                        child: _body(context, state),
+                      ),
+                    ),
                   ),
                 );
               },
@@ -101,67 +104,46 @@ class _HeadlinesPageState extends State<HeadlinesPage> {
       ),
     );
   }
-}
 
-class _Body extends StatelessWidget {
-  const _Body({
-    required this.state,
-    required this.controller,
-    required this.onOpen,
-  });
-
-  final HeadlinesState state;
-  final ScrollController controller;
-  final void Function(Article) onOpen;
-
-  @override
-  Widget build(BuildContext context) {
-    if (state.status == FetchStatus.loading && state.articles.isEmpty) {
-      return const FeedSkeleton();
-    }
-
-    final slivers = <Widget>[];
-    if (state.status == FetchStatus.failure && state.articles.isEmpty) {
-      slivers.add(
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: AppErrorView(
+  Widget _body(BuildContext context, HeadlinesState state) {
+    if (state.articles.isEmpty) {
+      return switch (state.status) {
+        FetchStatus.failure => _fill(
+          AppErrorView(
             message: state.errorMessage ?? '',
             onRetry: () =>
                 context.read<HeadlinesBloc>().add(const HeadlinesStarted()),
           ),
         ),
-      );
-    } else if (state.isEmpty) {
-      slivers.add(
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: AppEmptyView(
+        FetchStatus.success => _fill(
+          AppEmptyView(
             icon: Icons.article_outlined,
             title: context.l10n.emptyHeadlinesTitle,
             subtitle: context.l10n.emptyHeadlinesSubtitle,
           ),
         ),
-      );
-    } else {
-      slivers.addAll(_content(context));
+        FetchStatus.initial || FetchStatus.loading => const FeedSkeleton(),
+      };
     }
-
-    return CustomScrollView(
-      controller: controller,
-      physics: const AlwaysScrollableScrollPhysics(),
-      slivers: slivers,
-    );
+    return _feed(context, state);
   }
 
-  List<Widget> _content(BuildContext context) {
+  Widget _fill(Widget child) => CustomScrollView(
+    physics: const AlwaysScrollableScrollPhysics(),
+    slivers: [SliverFillRemaining(hasScrollBody: false, child: child)],
+  );
+
+  Widget _feed(BuildContext context, HeadlinesState state) {
     final l10n = context.l10n;
     final layout = context.watch<SettingsBloc>().state.defaultLayout;
     final isList = layout == FeedLayout.list;
     final articles = state.articles;
+    final featured = articles.first;
+    final rest = articles.skip(1).toList();
 
-    return [
-      if (isList)
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(18, 4, 18, 18),
@@ -171,35 +153,34 @@ class _Body extends StatelessWidget {
                 SectionHeader(title: l10n.trending),
                 const SizedBox(height: 12),
                 FeaturedArticleCard(
-                  article: articles.first,
-                  onTap: () => onOpen(articles.first),
+                  article: featured,
+                  heroTag: 'home-${featured.url}',
+                  onTap: () => _open(featured),
                 ),
               ],
             ),
           ),
         ),
-      SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 4, 18, 12),
-          child: SectionHeader(
-            title: l10n.latest,
-            action: LayoutToggle(
-              layout: layout,
-              onToggle: () => context.read<SettingsBloc>().add(
-                SettingsDefaultLayoutChanged(
-                  isList ? FeedLayout.grid : FeedLayout.list,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 4, 18, 12),
+            child: SectionHeader(
+              title: l10n.latest,
+              action: LayoutToggle(
+                layout: layout,
+                onToggle: () => context.read<SettingsBloc>().add(
+                  SettingsDefaultLayoutChanged(
+                    isList ? FeedLayout.grid : FeedLayout.list,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-      if (isList)
-        _listSliver(context, articles.skip(1).toList())
-      else
-        _gridSliver(context, articles),
-      SliverToBoxAdapter(child: _footer(context)),
-    ];
+        if (isList) _listSliver(context, rest) else _gridSliver(context, rest),
+        SliverToBoxAdapter(child: _footer(context, state)),
+      ],
+    );
   }
 
   Widget _listSliver(BuildContext context, List<Article> articles) {
@@ -213,7 +194,8 @@ class _Body extends StatelessWidget {
           final article = articles[index];
           return ArticleListTile(
             article: article,
-            onTap: () => onOpen(article),
+            heroTag: 'home-${article.url}',
+            onTap: () => _open(article),
             trailing: BookmarkButton(article: article, size: 18),
           );
         },
@@ -222,11 +204,13 @@ class _Body extends StatelessWidget {
   }
 
   Widget _gridSliver(BuildContext context, List<Article> articles) {
+    final width = MediaQuery.sizeOf(context).width;
+    final columns = width >= 900 ? 4 : (width >= 600 ? 3 : 2);
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
       sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: columns,
           mainAxisSpacing: 18,
           crossAxisSpacing: 13,
           mainAxisExtent: 222,
@@ -235,14 +219,15 @@ class _Body extends StatelessWidget {
           final article = articles[index];
           return ArticleGridCard(
             article: article,
-            onTap: () => onOpen(article),
+            heroTag: 'home-${article.url}',
+            onTap: () => _open(article),
           );
         }, childCount: articles.length),
       ),
     );
   }
 
-  Widget _footer(BuildContext context) {
+  Widget _footer(BuildContext context, HeadlinesState state) {
     final showLoader =
         !state.hasReachedMax && state.status != FetchStatus.failure;
     return Padding(

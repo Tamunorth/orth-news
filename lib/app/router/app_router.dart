@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:orth_news/app/router/app_routes.dart';
 import 'package:orth_news/features/app_shell/view/app_shell.dart';
+import 'package:orth_news/features/article_detail/article_route_args.dart';
 import 'package:orth_news/features/article_detail/presentation/view/article_detail_page.dart';
 import 'package:orth_news/features/bookmarks/presentation/view/bookmarks_page.dart';
 import 'package:orth_news/features/headlines/presentation/bloc/headlines_bloc.dart';
@@ -78,13 +79,19 @@ GoRouter createRouter() {
         path: AppRoutes.article,
         parentNavigatorKey: rootKey,
         builder: (context, state) {
-          final article = state.extra;
-          if (article is! Article) {
-            return const Scaffold(
-              body: Center(child: Text('Article unavailable')),
+          final extra = state.extra;
+          if (extra is ArticleRouteArgs) {
+            return ArticleDetailPage(
+              article: extra.article,
+              heroTag: extra.heroTag,
             );
           }
-          return ArticleDetailPage(article: article);
+          if (extra is Article) {
+            return ArticleDetailPage(article: extra);
+          }
+          return const Scaffold(
+            body: Center(child: Text('Article unavailable')),
+          );
         },
       ),
     ],
