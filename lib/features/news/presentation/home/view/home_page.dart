@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:orth_news/app/router/app_routes.dart';
+import 'package:orth_news/app/router/article_route_args.dart';
 import 'package:orth_news/core/enums.dart';
 import 'package:orth_news/core/extensions/context_extensions.dart';
 import 'package:orth_news/core/theme/app_colors.dart';
@@ -11,7 +12,6 @@ import 'package:orth_news/core/widgets/app_loading_view.dart';
 import 'package:orth_news/core/widgets/skeletons.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/domain/entities/news_category.dart';
-import 'package:orth_news/features/news/presentation/detail/article_route_args.dart';
 import 'package:orth_news/features/news/presentation/home/bloc/home_bloc.dart';
 import 'package:orth_news/features/news/presentation/home/widgets/category_chips.dart';
 import 'package:orth_news/features/news/presentation/home/widgets/home_header.dart';
@@ -218,7 +218,7 @@ class _HomePageState extends State<HomePage> {
           crossAxisCount: columns,
           mainAxisSpacing: 18,
           crossAxisSpacing: 13,
-          mainAxisExtent: 222,
+          mainAxisExtent: kArticleGridCardExtent,
         ),
         delegate: SliverChildBuilderDelegate((context, index) {
           final article = articles[index];

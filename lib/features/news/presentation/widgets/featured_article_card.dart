@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:orth_news/core/extensions/context_extensions.dart';
+import 'package:orth_news/core/theme/app_colors.dart';
 import 'package:orth_news/core/widgets/article_image.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/presentation/widgets/source_label.dart';
@@ -19,6 +20,8 @@ class FeaturedArticleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final description = article.description?.trim();
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18),
@@ -39,6 +42,15 @@ class FeaturedArticleCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: context.text.titleMedium,
           ),
+          if (description != null && description.isNotEmpty) ...[
+            const SizedBox(height: 5),
+            Text(
+              description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.bodySmall?.copyWith(color: colors.body),
+            ),
+          ],
           const SizedBox(height: 11),
           SourceLabel(article: article),
         ],

@@ -6,6 +6,10 @@ import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/presentation/widgets/bookmark_button.dart';
 import 'package:orth_news/features/news/presentation/widgets/source_label.dart';
 
+/// Fixed grid-cell height: thumbnail + 2-line title + 2-line description
+/// + source row, sized to avoid overflow.
+const double kArticleGridCardExtent = 296;
+
 /// 2-column card for the feed's grid layout, with the bookmark overlaid on the
 /// image so it's reachable from grid view too.
 class ArticleGridCard extends StatelessWidget {
@@ -23,6 +27,7 @@ class ArticleGridCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final description = article.description?.trim();
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -61,6 +66,15 @@ class ArticleGridCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: context.text.titleSmall,
           ),
+          if (description != null && description.isNotEmpty) ...[
+            const SizedBox(height: 5),
+            Text(
+              description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.bodySmall?.copyWith(color: colors.body),
+            ),
+          ],
           const SizedBox(height: 9),
           SourceLabel(article: article),
         ],
