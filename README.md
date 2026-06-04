@@ -14,6 +14,13 @@ The API key is injected at build time and never committed:
 > NewsAPI's free tier works from mobile/localhost only (CORS blocks the web
 > build), serves articles ~24h delayed, allows 100 requests/day, and caps any
 > query at 100 results — the feed paginates to that limit by design.
+>
+> **Images:** the `country=us` top-headlines feed is often dominated by **Google
+> News** (an aggregator) entries, which NewsAPI returns with `urlToImage: null`
+> — so some cards show the monochrome placeholder rather than a photo. This is a
+> free-tier data limitation, not an app bug (the app guards null/broken images).
+> A curated `sources=` publisher list, an image-richer category (e.g.
+> technology), or a paid key all return image-rich data.
 
 ## Architecture
 
@@ -29,7 +36,7 @@ The API key is injected at build time and never committed:
 - **presentation** — Blocs (the view-models) depend only on use-cases, plus
   widgets.
 
-State management is BLoC throughout: `HeadlinesBloc`, `SearchBloc` (debounced
+State management is BLoC throughout: `HomeBloc`, `SearchBloc` (debounced
 via a `restartable` `EventTransformer`), and hydrated `BookmarksBloc` +
 `SettingsBloc` that survive restarts. Routing is GoRouter
 (`StatefulShellRoute`); theming is Material 3 light/dark with Outfit + Poppins.
