@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:orth_news/core/theme/app_colors.dart';
-import 'package:orth_news/features/bookmarks/presentation/bloc/bookmarks_bloc.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
+import 'package:orth_news/features/news/presentation/bookmarks/bloc/bookmarks_bloc.dart';
 
 /// Toggles the article in [BookmarksBloc] and reflects saved state. Rebuilds on
 /// every bookmarks change (the icon is cheap) so a recycled row never shows a

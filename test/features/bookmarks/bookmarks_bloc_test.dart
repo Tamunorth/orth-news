@@ -2,8 +2,8 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:orth_news/features/bookmarks/presentation/bloc/bookmarks_bloc.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
+import 'package:orth_news/features/news/presentation/bookmarks/bloc/bookmarks_bloc.dart';
 
 class _MockStorage extends Mock implements Storage {}
 

@@ -4,10 +4,10 @@ import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:orth_news/core/enums.dart';
 import 'package:orth_news/core/error/failure.dart';
-import 'package:orth_news/features/home/presentation/bloc/home_bloc.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/domain/entities/news_category.dart';
 import 'package:orth_news/features/news/domain/usecases/get_top_headlines.dart';
+import 'package:orth_news/features/news/presentation/home/bloc/home_bloc.dart';
 
 class _MockGetTopHeadlines extends Mock implements GetTopHeadlines {}
 

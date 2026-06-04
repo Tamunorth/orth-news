@@ -5,10 +5,10 @@ import 'package:orth_news/app/router/app_router.dart';
 import 'package:orth_news/core/config/app_config.dart';
 import 'package:orth_news/core/network/dio_client.dart';
 import 'package:orth_news/core/theme/app_theme.dart';
-import 'package:orth_news/features/bookmarks/presentation/bloc/bookmarks_bloc.dart';
 import 'package:orth_news/features/news/data/datasources/news_remote_data_source.dart';
 import 'package:orth_news/features/news/data/repositories/news_repository_impl.dart';
 import 'package:orth_news/features/news/domain/repositories/news_repository.dart';
+import 'package:orth_news/features/news/presentation/bookmarks/bloc/bookmarks_bloc.dart';
 import 'package:orth_news/features/settings/presentation/bloc/settings_bloc.dart';
 import 'package:orth_news/l10n/generated/app_localizations.dart';
 

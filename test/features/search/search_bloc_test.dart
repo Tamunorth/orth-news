@@ -6,7 +6,7 @@ import 'package:orth_news/core/enums.dart';
 import 'package:orth_news/core/error/failure.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/domain/usecases/search_articles.dart';
-import 'package:orth_news/features/search/presentation/bloc/search_bloc.dart';
+import 'package:orth_news/features/news/presentation/search/bloc/search_bloc.dart';
 
 class _MockSearchArticles extends Mock implements SearchArticles {}
 

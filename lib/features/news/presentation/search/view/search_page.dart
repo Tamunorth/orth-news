@@ -9,11 +9,11 @@ import 'package:orth_news/core/widgets/app_empty_view.dart';
 import 'package:orth_news/core/widgets/app_error_view.dart';
 import 'package:orth_news/core/widgets/search_field.dart';
 import 'package:orth_news/core/widgets/skeletons.dart';
-import 'package:orth_news/features/article_detail/article_route_args.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
+import 'package:orth_news/features/news/presentation/detail/article_route_args.dart';
+import 'package:orth_news/features/news/presentation/search/bloc/search_bloc.dart';
 import 'package:orth_news/features/news/presentation/widgets/article_list_tile.dart';
 import 'package:orth_news/features/news/presentation/widgets/bookmark_button.dart';
-import 'package:orth_news/features/search/presentation/bloc/search_bloc.dart';
 
 /// Full-screen search, pushed from the home search bar. Being a fresh route on
 /// each open, `autofocus` reliably focuses the field and opens the keyboard.

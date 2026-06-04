@@ -3,17 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:orth_news/app/router/app_routes.dart';
 import 'package:orth_news/features/app_shell/view/app_shell.dart';
-import 'package:orth_news/features/article_detail/article_route_args.dart';
-import 'package:orth_news/features/article_detail/presentation/view/article_detail_page.dart';
-import 'package:orth_news/features/bookmarks/presentation/view/bookmarks_page.dart';
-import 'package:orth_news/features/home/presentation/bloc/home_bloc.dart';
-import 'package:orth_news/features/home/presentation/view/home_page.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
 import 'package:orth_news/features/news/domain/repositories/news_repository.dart';
 import 'package:orth_news/features/news/domain/usecases/get_top_headlines.dart';
 import 'package:orth_news/features/news/domain/usecases/search_articles.dart';
-import 'package:orth_news/features/search/presentation/bloc/search_bloc.dart';
-import 'package:orth_news/features/search/presentation/view/search_page.dart';
+import 'package:orth_news/features/news/presentation/bookmarks/view/bookmarks_page.dart';
+import 'package:orth_news/features/news/presentation/detail/article_route_args.dart';
+import 'package:orth_news/features/news/presentation/detail/view/article_detail_page.dart';
+import 'package:orth_news/features/news/presentation/home/bloc/home_bloc.dart';
+import 'package:orth_news/features/news/presentation/home/view/home_page.dart';
+import 'package:orth_news/features/news/presentation/search/bloc/search_bloc.dart';
+import 'package:orth_news/features/news/presentation/search/view/search_page.dart';
 import 'package:orth_news/features/settings/presentation/view/settings_page.dart';
 
 GoRouter createRouter() {

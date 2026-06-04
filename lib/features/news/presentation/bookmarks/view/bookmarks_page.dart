@@ -6,9 +6,9 @@ import 'package:orth_news/core/extensions/context_extensions.dart';
 import 'package:orth_news/core/theme/app_colors.dart';
 import 'package:orth_news/core/widgets/app_empty_view.dart';
 import 'package:orth_news/core/widgets/search_field.dart';
-import 'package:orth_news/features/article_detail/article_route_args.dart';
-import 'package:orth_news/features/bookmarks/presentation/bloc/bookmarks_bloc.dart';
 import 'package:orth_news/features/news/domain/entities/article.dart';
+import 'package:orth_news/features/news/presentation/bookmarks/bloc/bookmarks_bloc.dart';
+import 'package:orth_news/features/news/presentation/detail/article_route_args.dart';
 import 'package:orth_news/features/news/presentation/widgets/article_list_tile.dart';
 import 'package:orth_news/features/news/presentation/widgets/bookmark_button.dart';
 
